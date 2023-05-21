@@ -67,11 +67,88 @@ def precipitation():
     # Perform a query to retrieve the data and precipitation scores
     precip = session.query(measurement_table.date, measurement_table.prcp).filter(measurement_table.date >= query_date).all()
 
+    #close session
+    session.close()
+
+    #turn session into dictionary with keys
+    for date, prcp in precip:
+        precip_dict = {}
+        precip_dict["date"] = prcp
+        
+
+    return jsonify(precip_dict)
+
+#stations app route
+
+@app.route("/api/v1.0/stations")
+def stations():
+
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Return JSON stations list."""
+
+    #query the DB for station 
+    station_q = session.query(station_table.id, station_table.station, station_table.name, station_table.latitude,\
+                              station_table.longitude, station_table.elevation).all()
+
+    #close session
+    session.close()
+
+    #Create list
+    stations_lst = []
+    for id, station, name, latitude, longitude, elevation in station_q:
+        stations_dict = {}
+        stations_dict["id"] = id
+        stations_dict["station"] = station
+        stations_dict["name"] = name
+        stations_dict["latitude"] = latitude
+        stations_dict["longitude"] = longitude
+        stations_dict["elevation"] = elevation
+        stations_lst.append(stations_dict)
+
+    
+    return jsonify(stations_lst)
 
 
+#stobs app route
+
+@app.route("/api/v1.0/tobs")
+def tobs():
+
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Return JSON most active station data."""
+
+    #query the DB for station 
+    # Find the most recent date in the data set.
+    recent_date = session.query(measurement_table.date).order_by(measurement_table.date.desc()).first()
+    # Calculate the date one year from the last date in data set.
+    latest_date = dt.datetime.strptime(str(recent_date), "('%Y-%m-%d',)").date()
+    query_date = latest_date - dt.timedelta(days = 365)
+
+    #find station info
+    most_active = session.query(measurement_table.station, measurement_table.date, \
+                                measurement_table.prcp, measurement_table.tobs).filter(measurement_table.station == 'USC00519281').\
+                                filter(measurement_table.date >= query_date).all()
+
+    #close session
+    session.close()
 
 
+    #collect row data
+    station_data = []
+    for station, date, prcp, tobs in most_active:
+        station_data_dict ={}
+        station_data_dict['station'] = station
+        station_data_dict['date'] = date
+        station_data_dict['prcp'] = prcp
+        station_data_dict['tobs'] = tobs
+        station_data.append(station_data_dict)
 
+
+    return jsonify(station_data)
 
 
 if __name__ == '__main__':
