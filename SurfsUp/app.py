@@ -45,7 +45,9 @@ def welcome():
         f"Available Routes:<br/>"
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
-        f"/api/v1.0/tobs"
+        f"/api/v1.0/tobs<br/>"
+        f"/api/v1.0/&lt;start&gt;<br/>"
+        f"/api/v1.0/&lt;start&gt;/&lt;end&gt;"
     )
 
 #precipitation app route
@@ -111,7 +113,7 @@ def stations():
     return jsonify(stations_lst)
 
 
-#stobs app route
+#tobs app route
 
 @app.route("/api/v1.0/tobs")
 def tobs():
@@ -149,6 +151,71 @@ def tobs():
 
 
     return jsonify(station_data)
+
+#<start> app route
+
+@app.route("/api/v1.0/<start>")
+def start_date(start):
+
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Return JSON for a specified start, calculate TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date"""
+
+    start_query = session.query(func.min(measurement_table.tobs), func.max(measurement_table.tobs), func.avg(measurement_table.tobs)).\
+                  filter(measurement_table.date >= start).all()
+
+    #close session
+    session.close()
+
+    date_info = {}
+    date_info['start date'] = start
+
+    date_list = []
+    date_list.append(date_info)
+
+    for min, max, avg in start_query:
+        date_dict = {}
+        date_dict['min'] = min
+        date_dict['max'] = max
+        date_dict['avg'] = avg
+        date_list.append(date_dict)
+
+    
+    return jsonify(date_list)
+
+
+#<start>/<end> app route
+
+@app.route("/api/v1.0/<start>/<end>")
+def start_end_date(start, end):
+
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """For a specified start date and end date, calculate TMIN, TAVG, and TMAX for the dates from the start date to the end date, inclusive."""
+
+    start_query = session.query(func.min(measurement_table.tobs), func.max(measurement_table.tobs), func.avg(measurement_table.tobs)).\
+                  filter(measurement_table.date >= start, measurement_table.date <= end).all()
+
+    #close session
+    session.close()
+
+    date_info = {}
+    date_info['From start date'] = start
+    date_info['to end date'] = end
+
+    date_list = []
+    date_list.append(date_info)
+
+    for min, max, avg in start_query:
+        date_dict = {}
+        date_dict['min'] = min
+        date_dict['max'] = max
+        date_dict['avg'] = avg
+        date_list.append(date_dict)
+
+    return jsonify(date_list)
 
 
 if __name__ == '__main__':
