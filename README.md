@@ -18,6 +18,7 @@ Use Python and SQLAlchemy to do a basic climate analysis and data exploration of
 - Load the query results into a Pandas DataFrame, explicitly setting the column names.
 - Sort the DataFrame values by "date".
 - Plot the results by using the DataFrame plot method
+<img width="616" alt="Screenshot 2023-07-09 at 8 25 05 PM" src="https://github.com/m-janssens-boop/sqlalchemy_challenge/assets/127706155/17999802-fffc-4452-a8b3-9836086aef5a">
 
 - Use Pandas to print the summary statistics for the precipitation data.
 
@@ -26,6 +27,7 @@ Use Python and SQLAlchemy to do a basic climate analysis and data exploration of
 - Design a query to find the most-active stations.
 - Design a query that calculates the lowest, highest, and average temperatures that filters on the most-active station id found in the previous query.
 - Design a query to get the previous 12 months of temperature observation (TOBS) data.
+<img width="669" alt="Screenshot 2023-07-09 at 8 25 16 PM" src="https://github.com/m-janssens-boop/sqlalchemy_challenge/assets/127706155/19979469-e9df-4e40-bcdb-ef02aa8d3ab0">
 
 
 ### Part 2: Design Climate App ###
